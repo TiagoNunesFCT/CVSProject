@@ -1,12 +1,17 @@
 
 public class CounterSequence {
 
+	private int capacity;
+	private int size;
+	private Counter[] seq;
 	
 	/*The first constructor takes as a parameter the maximum capacity of the sequence,
 	allocating memory accordingly and creating a sequence that has no counters.*/
 	public CounterSequence(int cap) 
 	{
-		
+		capacity = cap;
+		size = 0;
+		seq = new Counter[cap];
 	}
 	
 	/*The second
@@ -14,20 +19,31 @@ public class CounterSequence {
 	will have as many counters as there are integers in the array*/
 	public CounterSequence(int[] arr) 
 	{
-		
+		capacity = arr.length;
+		seq = new Counter[arr.length];
+		for(int i = 0; i < arr.length; i++) {
+			seq[i] = new Counter(0, arr[i]);
+		}
+		size = arr.length;
 	}
 	
 	
 	/*The length and capacity methods return the current number of counters and the
 	total capacity of the sequence, respectively.*/
 	public int length() 
-	{ 
-		return 0; 
+	{ 	/*int count = 0;
+		for (Counter c : seq) {
+			if (c != null) {
+				count++;
+			}
+		}
+		return count; */
+		return size;
 	}
 	
 	public int capacity() 
 	{
-		return 0;
+		return capacity;
 	}
 
 	
@@ -35,7 +51,7 @@ public class CounterSequence {
 	counter in position i of the sequence.*/
 	public int getCounter(int i) 
 	{
-		return 0;
+		return seq[i].getVal();
 	}
 	
 	
@@ -43,8 +59,14 @@ public class CounterSequence {
 	given the parameter limit, assuming the sequence is not at maximum capacity. The
 	method returns the index of the added counter. New counters always start with value 0.*/
 	public int addCounter(int limit) 
-	{
-		return 0;
+	{	
+		if(size < capacity) {
+			int oldSize = size;
+			seq[size] = new Counter(0, limit);
+			size++;
+			return oldSize;
+		}else return -1;
+		
 	}
 	
 	
@@ -56,14 +78,28 @@ public class CounterSequence {
 	moving the last element of the sequence to the position of the removed counter.*/
 	public void remCounter(int pos) 
 	{
-		
+		if (size > 0 && pos < size && pos >= 0 ) {
+			seq[pos] = seq[size-1];
+			seq[size-1] = null;
+			size--;
+		}
 	}
 	
 	/*The remCounterPO operation must preserve the order of the elements of
 	the sequence (i.e. moving all appropriate counters accordingly).*/
 	public void remCounterPO(int pos) 
 	{
-		
+		if (size > 0 && pos < size && pos >= 0 ) {
+			if(pos < size-1) {
+			for(int i = pos; i < size-1; i++) {
+				seq[pos] = seq[pos+1];
+				seq[pos+1] = null;
+			}
+			}else {				//estamos a remover o último da sequência
+				seq[pos] = null;
+			}
+			size--;
+		}
 	}
 	
 	
@@ -72,12 +108,12 @@ public class CounterSequence {
 	These operations assume the given value is positive and i is a valid index.*/
 	public void increment(int i, int val) 
 	{
-		
+		seq[i].incr(val);
 	}
 	
 	public void decrement(int i, int val) 
 	{
-		
+		seq[i].decr(val);
 	}
 	
 	/*Verification

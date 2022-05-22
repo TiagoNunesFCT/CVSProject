@@ -11,19 +11,21 @@ public class Counter {
 	
 	public Counter(int val, int limit) 
 	{
-		
+		this.val = val;
+		this.limit = limit;
+		overflow = false;
 	}
 	
 	
 	/*The get operations simply return the value of the counter and its limit.*/
 	public int getVal() 
 	{
-		return 0;
+		return val;
 	}
 	
 	public int getLimit() 
 	{
-		return 0;
+		return limit;
 	}
 	
 	
@@ -34,8 +36,12 @@ public class Counter {
 	if the increment results in an overflow, will update the boolean flag accordingly
 	and set the counter value modulo the limit.*/
 	public void incr(int v) 
-	{
-		
+	{	
+		val += v;
+		if ((val > limit)) {
+			val = val % limit;
+			overflow = true;
+		}
 	}
 	
 	/*The decrement operation aims to decrement the counter value, 
@@ -44,7 +50,11 @@ public class Counter {
 	If no underflow occurs, the decrement decreases the value of the counter as expected.*/
 	public void decr(int v) 
 	{
-		
+		val -= v;
+		if ((val < 0)) {
+			val = 0;
+			overflow = true;
+		}
 	}
 
 }
