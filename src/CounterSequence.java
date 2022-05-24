@@ -1,15 +1,31 @@
 
 public class CounterSequence {
 
-	private int capacity;
+	private int cap;
 	private int size;
 	private Counter[] seq;
 	
 	/*The first constructor takes as a parameter the maximum capacity of the sequence,
 	allocating memory accordingly and creating a sequence that has no counters.*/
+	//array_slice_deep(o,0,o.length,goodValuesNull, unit, _, _); 
+	/*@	
+		predicate goodValuesNull(unit a, Counter c, unit n) = c |-> ?nval &*& nval == null &*& n == unit;
+		
+		predicate goodValueInv(unit a, Counter c, unit n) = CounterInv(?c, ?l, ?o);
+				
+		predicate CounterSeqInv(int c, int sz) = this.cap |-> c &*& 
+		this.seq |-> ?sq &*& 
+		sq != null &*& 
+		&*& sq.length == c &*&
+		c >= sz &*&
+		array_slice(sq,sz,c,_)&*&
+		array_slice_deep(sq,0,sz,goodValuesInv, unit, _,_);
+	@*/
 	public CounterSequence(int cap) 
+	//@requires true;
+	//@ensures true;
 	{
-		capacity = cap;
+		this.cap = cap;
 		size = 0;
 		seq = new Counter[cap];
 	}
@@ -18,6 +34,8 @@ public class CounterSequence {
 	constructor takes as input an array of integers, with the intent of creating a sequence that
 	will have as many counters as there are integers in the array*/
 	public CounterSequence(int[] arr) 
+	//@requires true;
+	//@ensures true;
 	{
 		capacity = arr.length;
 		seq = new Counter[arr.length];
@@ -31,17 +49,16 @@ public class CounterSequence {
 	/*The length and capacity methods return the current number of counters and the
 	total capacity of the sequence, respectively.*/
 	public int length() 
-	{ 	/*int count = 0;
-		for (Counter c : seq) {
-			if (c != null) {
-				count++;
-			}
-		}
-		return count; */
+	//@requires true;
+	//@ensures true;
+
+	{ 
 		return size;
 	}
 	
 	public int capacity() 
+	//@requires true;
+	//@ensures true;
 	{
 		return capacity;
 	}
@@ -50,6 +67,8 @@ public class CounterSequence {
 	/*The getCounter method returns the value of the
 	counter in position i of the sequence.*/
 	public int getCounter(int i) 
+	//@requires true;
+	//@ensures true;
 	{
 		return seq[i].getVal();
 	}
@@ -58,7 +77,9 @@ public class CounterSequence {
 	/*The addCounter appends a new counter to the end of the sequence with upperlimit
 	given the parameter limit, assuming the sequence is not at maximum capacity. The
 	method returns the index of the added counter. New counters always start with value 0.*/
-	public int addCounter(int limit) 
+	public int addCounter(int limit) 	
+	//@requires true;
+	//@ensures true;
 	{	
 
 			int oldSize = size;
@@ -76,6 +97,8 @@ public class CounterSequence {
 	/*The remCounter operation is not order preserving,
 	moving the last element of the sequence to the position of the removed counter.*/
 	public void remCounter(int pos) 
+	//@requires true;
+	//@ensures true;
 	{
 
 			seq[pos] = seq[size-1];
@@ -87,6 +110,8 @@ public class CounterSequence {
 	/*The remCounterPO operation must preserve the order of the elements of
 	the sequence (i.e. moving all appropriate counters accordingly).*/
 	public void remCounterPO(int pos) 
+	//@requires true;
+	//@ensures true;
 	{
 
 			if(pos < size-1) {
@@ -105,12 +130,16 @@ public class CounterSequence {
 	/*The increment and decrement
 	operations add and remove the given value to the counter in position i of the sequence. 
 	These operations assume the given value is positive and i is a valid index.*/
-	public void increment(int i, int val) 
+	public void increment(int i, int val)
+	//@requires true;
+	//@ensures true;
 	{
 		seq[i].incr(val);
 	}
 	
 	public void decrement(int i, int val) 
+	//@requires true;
+	//@ensures true;
 	{
 		seq[i].decr(val);
 	}

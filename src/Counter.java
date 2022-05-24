@@ -9,7 +9,12 @@ public class Counter {
 	private boolean overflow;
 	
 	
-	public Counter(int val, int limit) 
+	/*@
+		predicate CounterInv(int v, int l, boolean o) = this.val |-> v &*& this.limit |-> l &*& this.overflow |-> o &*& v >= 0 &*& l >= 0 &*& v < l;
+	@*/
+	public Counter(int val, int limit)
+	 //@ requires val >= 0 &*& limit > 0 &*& val < limit;
+	 //@ ensures CounterInv(val, limit, false);
 	{
 		this.val = val;
 		this.limit = limit;
@@ -18,12 +23,16 @@ public class Counter {
 	
 	
 	/*The get operations simply return the value of the counter and its limit.*/
-	public int getVal() 
+	public int getVal()
+	//@ requires CounterInv(?v, ?l, ?o);
+	//@ensures CounterInv(v, l, o) &*& result==v; 
 	{
 		return val;
 	}
 	
-	public int getLimit() 
+	public int getLimit()
+	//@ requires CounterInv(?v, ?l, ?o);
+	//@ensures CounterInv(v, l, o) &*& result==l;  
 	{
 		return limit;
 	}
@@ -35,10 +44,12 @@ public class Counter {
 	/*The increment operation,
 	if the increment results in an overflow, will update the boolean flag accordingly
 	and set the counter value modulo the limit.*/
-	public void incr(int v) 
+	public void incr(int v)
+	//@ requires CounterInv(?vv, ?l, ?o) &*& v >= 0;
+	//@ ensures (vv+v >= l)? CounterInv((vv+v)%l, l, true) : CounterInv(vv+v, l, o);
 	{	
 		val += v;
-		if ((val > limit)) {
+		if ((val >= limit)) {
 			val = val % limit;
 			overflow = true;
 		}
@@ -49,6 +60,8 @@ public class Counter {
 	the operation updates the flag accordingly and sets the value to 0 instead. 
 	If no underflow occurs, the decrement decreases the value of the counter as expected.*/
 	public void decr(int v) 
+	//@ requires CounterInv(?vv, ?l, ?o) &*& v >= 0;
+	//@ ensures (vv-v < 0)? CounterInv(0, l, true) : CounterInv(vv-v, l, o);
 	{
 		val -= v;
 		if ((val < 0)) {
