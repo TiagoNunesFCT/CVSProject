@@ -60,12 +60,11 @@ public class CounterSequence {
 	method returns the index of the added counter. New counters always start with value 0.*/
 	public int addCounter(int limit) 
 	{	
-		if(size < capacity) {
+
 			int oldSize = size;
 			seq[size] = new Counter(0, limit);
 			size++;
 			return oldSize;
-		}else return -1;
 		
 	}
 	
@@ -78,18 +77,18 @@ public class CounterSequence {
 	moving the last element of the sequence to the position of the removed counter.*/
 	public void remCounter(int pos) 
 	{
-		if (size > 0 && pos < size && pos >= 0 ) {
+
 			seq[pos] = seq[size-1];
 			seq[size-1] = null;
 			size--;
-		}
+		
 	}
 	
 	/*The remCounterPO operation must preserve the order of the elements of
 	the sequence (i.e. moving all appropriate counters accordingly).*/
 	public void remCounterPO(int pos) 
 	{
-		if (size > 0 && pos < size && pos >= 0 ) {
+
 			if(pos < size-1) {
 			for(int i = pos; i < size-1; i++) {
 				seq[pos] = seq[pos+1];
@@ -99,7 +98,7 @@ public class CounterSequence {
 				seq[pos] = null;
 			}
 			size--;
-		}
+		
 	}
 	
 	
