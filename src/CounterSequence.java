@@ -37,7 +37,7 @@ public class CounterSequence {
 	//@requires true;
 	//@ensures true;
 	{
-		capacity = arr.length;
+		cap = arr.length;
 		seq = new Counter[arr.length];
 		for(int i = 0; i < arr.length; i++) {
 			seq[i] = new Counter(0, arr[i]);
@@ -60,7 +60,7 @@ public class CounterSequence {
 	//@requires true;
 	//@ensures true;
 	{
-		return capacity;
+		return cap;
 	}
 
 	
