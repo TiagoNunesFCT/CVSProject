@@ -45,7 +45,10 @@ public class CounterSequence {
 	{
 		cap = arr.length;
 		seq = new Counter[arr.length];
-		for(int i = 0; i < arr.length; i++) {
+		
+		for(int i = 0; i < arr.length; i++) 
+		//@invariant i >= 0 &*& i <= arr.length &*& array_slice_deep(seq,0,i,goodValuesInv, unit, _,_) &*& array_slice(seq,i,arr.length,_);
+		{
 			seq[i] = new Counter(0, arr[i]);
 		}
 		size = arr.length;
@@ -55,16 +58,16 @@ public class CounterSequence {
 	/*The length and capacity methods return the current number of counters and the
 	total capacity of the sequence, respectively.*/
 	public int length() 
-	//@requires true;
-	//@ensures true;
+	//@requires CounterSeqInv(?a, ?l);
+	//@ensures CounterSeqInv(a, l);
 
 	{ 
 		return size;
 	}
 	
 	public int capacity() 
-	//@requires true;
-	//@ensures true;
+	//@requires CounterSeqInv(?a, ?l);
+	//@ensures CounterSeqInv(a, l);
 	{
 		return cap;
 	}
