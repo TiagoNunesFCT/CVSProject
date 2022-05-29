@@ -16,7 +16,7 @@ public class CounterSequence {
 		predicate CounterSeqInv(int c, int sz) = this.cap |-> c &*& 
 		this.seq |-> ?sq &*& 
 		sq != null &*& 
-		&*& sq.length == c &*&
+		 sq.length == c &*&
 		c >= sz &*&
 		array_slice(sq,sz,c,_)&*&
 		array_slice_deep(sq,0,sz,goodValuesInv, unit, _,_);
