@@ -1,4 +1,7 @@
-
+/*@
+predicate goodValuesNull(unit a, Counter c; unit n) = c == null &*& n == unit;
+predicate goodValuesInv(unit a, Counter c; unit n) = c.val |-> ?v &*& c.limit |-> ?l &*& c.overflow |-> ?o &*& v >= 0 &*& l >= 0 &*& v < l &*& n == unit;
+@*/
 public class CounterSequence {
 
 	private int cap;
@@ -9,11 +12,14 @@ public class CounterSequence {
 	allocating memory accordingly and creating a sequence that has no counters.*/
 	//array_slice_deep(o,0,o.length,goodValuesNull, unit, _, _); 
 	/*@	
-		predicate goodValuesNull(unit a, Counter c, unit n) = c |-> ?nval &*& nval == null &*& n == unit;
 		
-		predicate goodValueInv(unit a, Counter c, unit n) = CounterInv(?c, ?l, ?o);
+		
+		
+		
+		
 				
 		predicate CounterSeqInv(int c, int sz) = this.cap |-> c &*& 
+		this.size |-> sz &*&
 		this.seq |-> ?sq &*& 
 		sq != null &*& 
 		 sq.length == c &*&
@@ -21,11 +27,11 @@ public class CounterSequence {
 		array_slice(sq,sz,c,_)&*&
 		array_slice_deep(sq,0,sz,goodValuesInv, unit, _,_);
 	@*/
-	public CounterSequence(int cap) 
-	//@requires true;
-	//@ensures true;
+	public CounterSequence(int caps) 
+	//@requires caps > 0;
+	//@ensures CounterSeqInv(caps, 0);
 	{
-		this.cap = cap;
+		this.cap = caps;
 		size = 0;
 		seq = new Counter[cap];
 	}
@@ -34,8 +40,8 @@ public class CounterSequence {
 	constructor takes as input an array of integers, with the intent of creating a sequence that
 	will have as many counters as there are integers in the array*/
 	public CounterSequence(int[] arr) 
-	//@requires true;
-	//@ensures true;
+	//@requires arr != null &*& arr.length > 0;
+	//@ensures CounterSeqInv(arr.length, arr.length);
 	{
 		cap = arr.length;
 		seq = new Counter[arr.length];
