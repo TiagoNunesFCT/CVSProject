@@ -107,12 +107,15 @@ public class CounterSequence {
 	/*The remCounter operation is not order preserving,
 	moving the last element of the sequence to the position of the removed counter.*/
 	public void remCounter(int pos) 
-	//@requires true;
-	//@ensures true;
+	//@requires CounterSeqInv(?a, ?l) &*& a > l &*& l > 0 &*& l > pos &*& pos >= 0;
+	//@ensures CounterSeqInv(a, l-1);
 	{
-
+			if(pos < size-1) {
 			seq[pos] = seq[size-1];
-			seq[size-1] = null;
+			}
+			else {			//estamos a remover o último da sequência
+			seq[pos] = null;
+			}
 			size--;
 		
 	}
@@ -120,23 +123,28 @@ public class CounterSequence {
 	/*The remCounterPO operation must preserve the order of the elements of
 	the sequence (i.e. moving all appropriate counters accordingly).*/
 	public void remCounterPO(int pos) 
-	//@requires true;
-	//@ensures true;
+	//@requires CounterSeqInv(?a, ?l) &*& a > l &*& l > 0 &*& l > pos &*& pos >= 0;
+	//@ensures CounterSeqInv(a, l-1);
 	{
-
+			//@open CounterSeqInv(a, l);
 			if(pos < size-1) {
-			for(int i = pos; i < size-1; i++) {
-				//seq[pos] = seq[pos+1];
-				//seq[pos+1] = null;
-				int val = seq[pos+1];
-				seq[pos+1] = null;
-				seq[pos] = val;
+			
+			for(int i = pos; i < size-1; i++) 
+			//@invariant cap |-> a &*& seq |-> ?sq &*& size |-> l &*& i >= pos &*& i <= l-1 &*& sq.length == a &*& array_slice_deep(sq,0,i,goodValuesInv, unit, _,_) &*& array_slice_deep(sq,i+1,l,goodValuesInv, unit, _,_) &*& array_element(sq, i, _) &*& array_slice(sq,l,a,_);
+			{
+				//seq[i] = seq[i+1];
+				//seq[i+1] = null;
+				Counter val = seq[i+1];
+				seq[i+1] = null;
+				seq[i] = val;
+				
 			}
+			
 			}else {				//estamos a remover o último da sequência
 				seq[pos] = null;
 			}
 			size--;
-		
+			//@close CounterSeqInv(a, l-1);
 	}
 	
 	
@@ -144,15 +152,15 @@ public class CounterSequence {
 	operations add and remove the given value to the counter in position i of the sequence. 
 	These operations assume the given value is positive and i is a valid index.*/
 	public void increment(int i, int val)
-	//@requires true;
-	//@ensures true;
+	//@requires CounterSeqInv(?a, ?l) &*& val > 0 &*& l > i &*& i >= 0;
+	//@ensures CounterSeqInv(a, l);
 	{
 		seq[i].incr(val);
 	}
 	
 	public void decrement(int i, int val) 
-	//@requires true;
-	//@ensures true;
+	//@requires CounterSeqInv(?a, ?l) &*& val > 0 &*& l > i &*& i >= 0;
+	//@ensures CounterSeqInv(a, l);
 	{
 		seq[i].decr(val);
 	}
