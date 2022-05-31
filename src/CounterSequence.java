@@ -1,6 +1,7 @@
 /*@
 predicate goodValuesNull(unit a, Counter c; unit n) = c == null &*& n == unit;
 predicate goodValuesInv(unit a, Counter c; unit n) = c.val |-> ?v &*& c.limit |-> ?l &*& c.overflow |-> ?o &*& v >= 0 &*& l >= 0 &*& v < l &*& n == unit;
+predicate Positive(unit a, int v; unit n) = v > 0 &*& n == unit;
 @*/
 public class CounterSequence {
 
@@ -40,14 +41,14 @@ public class CounterSequence {
 	constructor takes as input an array of integers, with the intent of creating a sequence that
 	will have as many counters as there are integers in the array*/
 	public CounterSequence(int[] arr) 
-	//@requires arr != null &*& arr.length > 0;
+	//@requires arr != null &*& arr.length > 0 &*& array_slice_deep(arr,0,arr.length, Positive, unit,_,_);
 	//@ensures CounterSeqInv(arr.length, arr.length);
 	{
 		cap = arr.length;
 		seq = new Counter[arr.length];
 		
 		for(int i = 0; i < arr.length; i++) 
-		//@invariant i >= 0 &*& i <= arr.length &*& array_slice_deep(seq,0,i,goodValuesInv, unit, _,_) &*& array_slice(seq,i,arr.length,_);
+		//@invariant array_slice_deep(arr,0,arr.length, Positive, unit,_,_) &*& i >= 0 &*& i <= arr.length &*& this.seq |-> ?sq &*& sq.length == arr.length &*& array_slice_deep(sq,0,i,goodValuesInv, unit, _,_) &*& array_slice(sq,i,arr.length,_);
 		{
 			seq[i] = new Counter(0, arr[i]);
 		}
@@ -76,8 +77,8 @@ public class CounterSequence {
 	/*The getCounter method returns the value of the
 	counter in position i of the sequence.*/
 	public int getCounter(int i) 
-	//@requires true;
-	//@ensures true;
+	//@requires CounterSeqInv(?a, ?l) &*& i < l &*& i >= 0;
+	//@ensures CounterSeqInv(a, l) &*& result >= 0;
 	{
 		return seq[i].getVal();
 	}
@@ -87,8 +88,8 @@ public class CounterSequence {
 	given the parameter limit, assuming the sequence is not at maximum capacity. The
 	method returns the index of the added counter. New counters always start with value 0.*/
 	public int addCounter(int limit) 	
-	//@requires true;
-	//@ensures true;
+	//@requires CounterSeqInv(?a, ?l) &*& a > l &*& limit > 0;
+	//@ensures CounterSeqInv(a, l+1) &*& result == l;
 	{	
 
 			int oldSize = size;
@@ -125,8 +126,11 @@ public class CounterSequence {
 
 			if(pos < size-1) {
 			for(int i = pos; i < size-1; i++) {
-				seq[pos] = seq[pos+1];
+				//seq[pos] = seq[pos+1];
+				//seq[pos+1] = null;
+				int val = seq[pos+1];
 				seq[pos+1] = null;
+				seq[pos] = val;
 			}
 			}else {				//estamos a remover o último da sequência
 				seq[pos] = null;
