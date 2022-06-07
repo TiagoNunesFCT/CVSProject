@@ -2,18 +2,7 @@
 predicate goodValuesNull(unit a, Counter c; unit n) = c == null &*& n == unit;
 predicate goodValuesInv(unit a, Counter c; unit n) = c.val |-> ?v &*& c.limit |-> ?l &*& c.overflow |-> ?o &*& v >= 0 &*& l >= 0 &*& v < l &*& n == unit;
 predicate Positive(unit a, int v; unit n) = v > 0 &*& n == unit;
-
-predicate CounterSeqInv(CounterSequence s; int c, int sz) = s.cap |-> c &*& 
-		s.size |-> sz &*&
-		s.seq |-> ?sq &*& 
-		sq != null &*& 
-		 sq.length == c &*&
-		c >= sz &*&
-		array_slice(sq,sz,c,_)&*&
-		array_slice_deep(sq,0,sz,goodValuesInv, unit, _,_);
 @*/
-
-
 public class CounterSequence {
 
 	private int cap;
@@ -23,10 +12,25 @@ public class CounterSequence {
 	/*The first constructor takes as a parameter the maximum capacity of the sequence,
 	allocating memory accordingly and creating a sequence that has no counters.*/
 	//array_slice_deep(o,0,o.length,goodValuesNull, unit, _, _); 
-
+	/*@	
+		
+		
+		
+		
+		
+				
+		predicate CounterSeqInv(int c, int sz) = this.cap |-> c &*& 
+		this.size |-> sz &*&
+		this.seq |-> ?sq &*& 
+		sq != null &*& 
+		 sq.length == c &*&
+		c >= sz &*&
+		array_slice(sq,sz,c,_)&*&
+		array_slice_deep(sq,0,sz,goodValuesInv, unit, _,_);
+	@*/
 	public CounterSequence(int caps) 
 	//@requires caps > 0;
-	//@ensures CounterSeqInv(this,caps, 0);
+	//@ensures CounterSeqInv(caps, 0);
 	{
 		this.cap = caps;
 		size = 0;
@@ -38,7 +42,7 @@ public class CounterSequence {
 	will have as many counters as there are integers in the array*/
 	public CounterSequence(int[] arr) 
 	//@requires arr != null &*& arr.length > 0 &*& array_slice_deep(arr,0,arr.length, Positive, unit,_,_);
-	//@ensures CounterSeqInv(this,arr.length, arr.length);
+	//@ensures CounterSeqInv(arr.length, arr.length);
 	{
 		cap = arr.length;
 		seq = new Counter[arr.length];
@@ -55,16 +59,16 @@ public class CounterSequence {
 	/*The length and capacity methods return the current number of counters and the
 	total capacity of the sequence, respectively.*/
 	public int length() 
-	//@requires CounterSeqInv(this,?a, ?l);
-	//@ensures CounterSeqInv(this,a, l);
+	//@requires CounterSeqInv(?a, ?l);
+	//@ensures CounterSeqInv(a, l);
 
 	{ 
 		return size;
 	}
 	
 	public int capacity() 
-	//@requires CounterSeqInv(this,?a, ?l);
-	//@ensures CounterSeqInv(this,a, l);
+	//@requires CounterSeqInv(?a, ?l);
+	//@ensures CounterSeqInv(a, l);
 	{
 		return cap;
 	}
@@ -73,8 +77,8 @@ public class CounterSequence {
 	/*The getCounter method returns the value of the
 	counter in position i of the sequence.*/
 	public int getCounter(int i) 
-	//@requires CounterSeqInv(this,?a, ?l) &*& i < l &*& i >= 0;
-	//@ensures CounterSeqInv(this,a, l) &*& result >= 0;
+	//@requires CounterSeqInv(?a, ?l) &*& i < l &*& i >= 0;
+	//@ensures CounterSeqInv(a, l) &*& result >= 0;
 	{
 		return seq[i].getVal();
 	}
@@ -84,8 +88,8 @@ public class CounterSequence {
 	given the parameter limit, assuming the sequence is not at maximum capacity. The
 	method returns the index of the added counter. New counters always start with value 0.*/
 	public int addCounter(int limit) 	
-	//@requires CounterSeqInv(this,?a, ?l) &*& a > l &*& limit > 0;
-	//@ensures CounterSeqInv(this,a, l+1) &*& result == l;
+	//@requires CounterSeqInv(?a, ?l) &*& a > l &*& limit > 0;
+	//@ensures CounterSeqInv(a, l+1) &*& result == l;
 	{	
 
 			int oldSize = size;
@@ -103,8 +107,8 @@ public class CounterSequence {
 	/*The remCounter operation is not order preserving,
 	moving the last element of the sequence to the position of the removed counter.*/
 	public void remCounter(int pos) 
-	//@requires CounterSeqInv(this,?a, ?l) &*& a > l &*& l > 0 &*& l > pos &*& pos >= 0;
-	//@ensures CounterSeqInv(this,a, l-1);
+	//@requires CounterSeqInv(?a, ?l) &*& a > l &*& l > 0 &*& l > pos &*& pos >= 0;
+	//@ensures CounterSeqInv(a, l-1);
 	{
 			if(pos < size-1) {
 			seq[pos] = seq[size-1];
@@ -119,8 +123,8 @@ public class CounterSequence {
 	/*The remCounterPO operation must preserve the order of the elements of
 	the sequence (i.e. moving all appropriate counters accordingly).*/
 	public void remCounterPO(int pos) 
-	//@requires CounterSeqInv(this,?a, ?l) &*& a > l &*& l > 0 &*& l > pos &*& pos >= 0;
-	//@ensures CounterSeqInv(this,a, l-1);
+	//@requires CounterSeqInv(?a, ?l) &*& a > l &*& l > 0 &*& l > pos &*& pos >= 0;
+	//@ensures CounterSeqInv(a, l-1);
 	{
 			//@open CounterSeqInv(a, l);
 			if(pos < size-1) {
@@ -148,15 +152,15 @@ public class CounterSequence {
 	operations add and remove the given value to the counter in position i of the sequence. 
 	These operations assume the given value is positive and i is a valid index.*/
 	public void increment(int i, int val)
-	//@requires CounterSeqInv(this,?a, ?l) &*& val > 0 &*& l > i &*& i >= 0;
-	//@ensures CounterSeqInv(this,a, l);
+	//@requires CounterSeqInv(?a, ?l) &*& val > 0 &*& l > i &*& i >= 0;
+	//@ensures CounterSeqInv(a, l);
 	{
 		seq[i].incr(val);
 	}
 	
 	public void decrement(int i, int val) 
-	//@requires CounterSeqInv(this,?a, ?l) &*& val > 0 &*& l > i &*& i >= 0;
-	//@ensures CounterSeqInv(this,a, l);
+	//@requires CounterSeqInv(?a, ?l) &*& val > 0 &*& l > i &*& i >= 0;
+	//@ensures CounterSeqInv(a, l);
 	{
 		seq[i].decr(val);
 	}
