@@ -3,7 +3,7 @@ predicate goodValuesNull(unit a, Counter c; unit n) = c == null &*& n == unit;
 predicate goodValuesInv(unit a, Counter c; unit n) = c.val |-> ?v &*& c.limit |-> ?l &*& c.overflow |-> ?o &*& v >= 0 &*& l >= 0 &*& v < l &*& n == unit;
 predicate Positive(unit a, int v; unit n) = v > 0 &*& n == unit;
 @*/
-public class CounterSequence {
+public class CounterSequenceTask1 {
 
 	private int cap;
 	private int size;
@@ -28,7 +28,7 @@ public class CounterSequence {
 		array_slice(sq,sz,c,_)&*&
 		array_slice_deep(sq,0,sz,goodValuesInv, unit, _,_);
 	@*/
-	public CounterSequence(int caps) 
+	public CounterSequenceTask1(int caps) 
 	//@requires caps > 0;
 	//@ensures CounterSeqInv(caps, 0);
 	{
@@ -40,7 +40,7 @@ public class CounterSequence {
 	/*The second
 	constructor takes as input an array of integers, with the intent of creating a sequence that
 	will have as many counters as there are integers in the array*/
-	public CounterSequence(int[] arr) 
+	public CounterSequenceTask1(int[] arr) 
 	//@requires arr != null &*& arr.length > 0 &*& array_slice_deep(arr,0,arr.length, Positive, unit,_,_);
 	//@ensures CounterSeqInv(arr.length, arr.length);
 	{
@@ -113,7 +113,7 @@ public class CounterSequence {
 			if(pos < size-1) {
 			seq[pos] = seq[size-1];
 			}
-			else {			//estamos a remover o último da sequência
+			else {			//estamos a remover o ï¿½ltimo da sequï¿½ncia
 			seq[pos] = null;
 			}
 			size--;
@@ -140,7 +140,7 @@ public class CounterSequence {
 				
 			}
 			
-			}else {				//estamos a remover o último da sequência
+			}else {				//estamos a remover o ï¿½ltimo da sequï¿½ncia
 				seq[pos] = null;
 			}
 			size--;
@@ -169,7 +169,7 @@ public class CounterSequence {
 	Both classes must be accompanied with the appropriate predicates that characterize the memory
 	footprint (and invariants) of their respective objects. All methods should have the appropriate
 	pre-conditions, adhering to the informal but precise description above. In terms of postconditions,
-	the Counter operations should precisely describe the changes to the Counter’s
+	the Counter operations should precisely describe the changes to the Counterï¿½s
 	internal state (i.e., of its value and the flag), following the description of the modifier operations
 	given above.
 	The CounterSequence operations, as a result of the predicate-based verification, need

@@ -3,7 +3,7 @@
 		predicate CounterInv( Counter c; int v, int l, boolean o) =  c.val |-> v &*& c.limit |-> l &*& c.overflow |-> o &*& v >= 0 &*& l >= 0 &*& v < l;
 	@*/
 
-public class Counter {
+public class CounterTask1 {
 	
 	/*current value, its upper-limit and a boolean flag that
 	becomes true if the counter has ever over or underflowed its limit. 
@@ -14,7 +14,7 @@ public class Counter {
 	
 	
 
-	public Counter(int val, int limit)
+	public CounterTask1(int val, int limit)
 	 //@ requires val >= 0 &*& limit > 0 &*& val < limit;
 	 //@ ensures CounterInv(this, val, limit, false);
 	{

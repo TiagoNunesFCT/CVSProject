@@ -7,7 +7,7 @@ predicate CounterSeqInv(CounterSequence s; int c, int sz) = s.cap |-> c &*&
 		s.size |-> sz &*&
 		s.seq |-> ?sq &*& 
 		sq != null &*& 
-		 sq.length == c &*&
+		sq.length == c &*&
 		c >= sz &*&
 		array_slice(sq,sz,c,_)&*&
 		array_slice_deep(sq,0,sz,goodValuesInv, unit, _,_);
@@ -109,7 +109,7 @@ public class CounterSequence {
 			if(pos < size-1) {
 			seq[pos] = seq[size-1];
 			}
-			else {			//estamos a remover o último da sequência
+			else {			//estamos a remover o ï¿½ltimo da sequï¿½ncia
 			seq[pos] = null;
 			}
 			size--;
@@ -136,7 +136,7 @@ public class CounterSequence {
 				
 			}
 			
-			}else {				//estamos a remover o último da sequência
+			}else {				//estamos a remover o ï¿½ltimo da sequï¿½ncia
 				seq[pos] = null;
 			}
 			size--;
@@ -165,7 +165,7 @@ public class CounterSequence {
 	Both classes must be accompanied with the appropriate predicates that characterize the memory
 	footprint (and invariants) of their respective objects. All methods should have the appropriate
 	pre-conditions, adhering to the informal but precise description above. In terms of postconditions,
-	the Counter operations should precisely describe the changes to the Counter’s
+	the Counter operations should precisely describe the changes to the Counterï¿½s
 	internal state (i.e., of its value and the flag), following the description of the modifier operations
 	given above.
 	The CounterSequence operations, as a result of the predicate-based verification, need

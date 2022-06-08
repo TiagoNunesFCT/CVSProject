@@ -1,10 +1,13 @@
 import java.util.concurrent.locks.*;
 
+
 /*@
 predicate_ctor CCSeqSharedState(CCSeq c) () = c.seq |-> ?s &*& CounterSeqInv(s,?cap, ?l) &*& l >= 0 &*& cap > 0 &*& l <= cap;
 predicate_ctor CCSeqNotEmpty(CCSeq c) () = c.seq |-> ?s &*& CounterSeqInv(s,?cap, ?l) &*& l > 0 &*& cap > 0 &*& l <= cap;
 predicate_ctor CCSeqNotFull(CCSeq c) () = c.seq |-> ?s &*& CounterSeqInv(s,?cap, ?l) &*& l < cap &*& cap > 0 &*& l >= 0;
-predicate CCSeqInv(CCSeq c) = c.mon |-> ?l &*& l != null &*& lck(l,1, CCSeqSharedState(c)) &*& c.notEmpty |-> ?ce &*& ce != null &*& cond(ce, CCSeqSharedState(c), CCSeqNotEmpty(c)) &*& c.notFull |-> ?cf &*& cf != null &*& cond(cf, CCSeqSharedState(c), CCSeqNotFull(c));
+predicate CCSeqInv(CCSeq c) = c.mon |-> ?l &*& l != null &*& lck(l,1, CCSeqSharedState(c)) 
+	&*& c.notEmpty |-> ?ce &*& ce != null &*& cond(ce, CCSeqSharedState(c), CCSeqNotEmpty(c)) 
+	&*& c.notFull |-> ?cf &*& cf != null &*& cond(cf, CCSeqSharedState(c), CCSeqNotFull(c));
 @*/
 
 public class CCSeq {
@@ -13,8 +16,6 @@ public class CCSeq {
 	ReentrantLock mon;
 	Condition notFull;
 	Condition notEmpty;
-	//Other relevant fields go here...
-	
 	
 	/*The constructor initializes a sequence with the given capacity.*/
 	public CCSeq(int cap) 
@@ -22,22 +23,41 @@ public class CCSeq {
 	//@ ensures CCSeqInv(this);
 	{
 		seq = new CounterSequence(cap);
+
+		//@ close CCSeqSharedState(this)();
+		//@ close enter_lck(1, CCSeqSharedState(this));
 		mon = new ReentrantLock();
+		
+ 		//@ close set_cond(CCSeqSharedState(this), CCSeqNotEmpty(this)); 
+		notEmpty = mon.newCondition(); // notEmpty set to mean 0 < size <= cap
+
+		//@ close set_cond(CCSeqSharedState(this), CCSeqNotFull(this));
+		notFull = mon.newCondition(); // notFull set to mean 0 <= size < cap
+		//@ close CCSeqInv(this);
 	}
 	
 	
 	/*The getCounter operation returns the value of the
 	counter at position i, or -1 if that position is invalid.*/
 	public int getCounter(int i) 
-	//@ requires CCSeqInv(this);
-	//@ ensures CCSeqInv(this);
-	{	int ret = 0;
-	
+	//@ requires [?f]CCSeqInv(this);
+	//@ ensures [f]CCSeqInv(this);
+	{	
+		int ret = 0;
+		
+		//@ open [f]CCSeqInv(this);
 		mon.lock();
-			if(i < seq.length() && i >= 0) {
-				ret = seq.getCounter(i);
-			} else ret = -1;
+		//@ open CCSeqSharedState(this)();
+		//@ close CCSeqNotEmpty(this)();
+		notEmpty.signal();
+		if(i < seq.length() && i >= 0) {
+			//@ close CCSeqSharedState(this)();
+			ret = seq.getCounter(i);
+			
+		} else ret = -1;
+
 		mon.unlock();
+		//@ close [f]CCSeqInv(this);
 		
 		return ret;
 	}
