@@ -56,7 +56,7 @@ public class CounterSequence {
 	total capacity of the sequence, respectively.*/
 	public int length() 
 	//@requires CounterSeqInv(this,?a, ?l);
-	//@ensures CounterSeqInv(this,a, l);
+	//@ensures CounterSeqInv(this,a, l) &*& result==l; 
 
 	{ 
 		return size;
@@ -64,7 +64,7 @@ public class CounterSequence {
 	
 	public int capacity() 
 	//@requires CounterSeqInv(this,?a, ?l);
-	//@ensures CounterSeqInv(this,a, l);
+	//@ensures CounterSeqInv(this,a, l) &*& result==a; 
 	{
 		return cap;
 	}
