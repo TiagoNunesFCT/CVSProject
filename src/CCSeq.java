@@ -2,7 +2,7 @@ import java.util.concurrent.locks.*;
 
 
 /*@
-predicate_ctor CCSeqSharedState(CCSeq c) () = c.seq |-> ?s &*& CounterSeqInv(s,?cap, ?l) &*& l >= 0 &*& cap > 0 &*& l <= cap;
+predicate_ctor CCSeqSharedState(CCSeq c) () = c.seq |-> ?s &*& s != null &*& CounterSeqInv(s,?cap, ?l) &*& l >= 0 &*& cap > 0 &*& l <= cap;
 predicate_ctor CCSeqNotEmpty(CCSeq c) () = c.seq |-> ?s &*& CounterSeqInv(s,?cap, ?l) &*& l > 0 &*& cap > 0 &*& l <= cap;
 predicate_ctor CCSeqNotFull(CCSeq c) () = c.seq |-> ?s &*& CounterSeqInv(s,?cap, ?l) &*& l < cap &*& cap > 0 &*& l >= 0;
 predicate CCSeqInv(CCSeq c) = c.mon |-> ?l &*& l != null &*& lck(l,1, CCSeqSharedState(c)) 
@@ -48,8 +48,6 @@ public class CCSeq {
 		//@ open [f]CCSeqInv(this);
 		mon.lock();
 		//@ open CCSeqSharedState(this)();
-		//@ close CCSeqNotEmpty(this)();
-		notEmpty.signal();
 		if(i < seq.length() && i >= 0) {
 			//@ close CCSeqSharedState(this)();
 			ret = seq.getCounter(i);
