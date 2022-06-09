@@ -47,15 +47,15 @@ public class CCSeq {
 		
 		//@ open CCSeqInv(this);
 		mon.lock();
+
 		//@ open CCSeqSharedState(this)();
-		
 		if(i < seq.length() && i >= 0) {
-		//@ assert this.seq |-> ?s &*& CounterSeqInv(s, ?cap, ?l) &*& i < l;	
 			
 			ret = seq.getCounter(i);
 			
 		} else ret = -1;
 		//@ close CCSeqSharedState(this)();
+
 		mon.unlock();
 		//@ close CCSeqInv(this);
 		
@@ -70,22 +70,33 @@ public class CCSeq {
 	//@ requires CCSeqInv(this);
 	//@ ensures CCSeqInv(this);
 	{
+		//@ open CCSeqInv(this);
 		mon.lock();
-		if(i < seq.length() && i >= 0) {
-		seq.increment(i, val);
+
+		//@ open CCSeqSharedState(this)();
+		if(i < seq.length() && i >= 0 && val > 0) {
+			seq.increment(i, val);
 		}
+		//@ close CCSeqSharedState(this)();
+
 		mon.unlock();
+		//@ close CCSeqInv(this);
 	}
 	
 	public void decr(int i, int val) 
 	//@ requires CCSeqInv(this);
 	//@ ensures CCSeqInv(this);
 	{
+		//@ open CCSeqInv(this);
 		mon.lock();
-		if(i < seq.length() && i >= 0) {
-		seq.decrement(i, val);
+		//@ open CCSeqSharedState(this)();
+		if(i < seq.length() && i >= 0 && val > 0) {
+			seq.decrement(i, val);
 		}
+		//@ close CCSeqSharedState(this)();
+
 		mon.unlock();
+		//@ close CCSeqInv(this);
 	}
 	
 	
@@ -96,31 +107,34 @@ public class CCSeq {
 	//@ ensures CCSeqInv(this);
 	{	
 		int index = -1;
+
+		//@ open CCSeqInv(this);
 		mon.lock();
-		//@ open CCSeq_shared_state(this)();
-		//Condition notFull
-		while (seq.capacity() <= seq.length()) 
-			/*@ invariant this.seq.length() |-> ?l
-			&*& l >= 0
-			&*& this.seq.capacity() |-> ?cap
-			&*& cap > 0 
-			&*& l <= cap
+
+		// Condition Used - notFull
+		//@ open CCSeqSharedState(this)();
+		while (seq.length() <= seq.capacity()) 
+			/*@ invariant this.seq |-> ?s &*& s != null &*& CounterSeqInv(s, ?cap, ?l)
+			&*& l >= 0 &*& cap > 0 &*& l <= cap
 			&*& this.notEmpty |-> ?ce 
 			&*& ce !=null
-			&*& cond(ce, CCSeq_shared_state(this), CCSeq_notEmpty(this))
+			&*& cond(ce, CCSeqSharedState(this), CCSeqNotEmpty(this))
 			&*& this.notFull |-> ?cf
 			&*& cf !=null 
-			&*& cond(cf, CCSeq_shared_state(this), CCSeq_notFull(this));
+			&*& cond(cf, CCSeqSharedState(this), CCSeqNotFull(this));
 			@*/
+			
 		{
-			//@close CCSeq_shared_state(this)();
+			//@close CCSeqSharedState(this)();
 			try { notFull.await(); } catch (InterruptedException e) {}
-			//@ open CCSeq_notFull(this)();
+			//@ open CCSeqNotFull(this)();
 		}
 		index = seq.addCounter(limit);
-		//@ close CCSeq_notEmpty(this)();
+		//@ close CCSeqNotEmpty(this)();
 		notEmpty.signal();
+		
 		mon.unlock();
+		//@ close CCSeqInv(this);
 		return index;
 	}
 	
