@@ -40,12 +40,12 @@ public class CCSeq {
 	/*The getCounter operation returns the value of the
 	counter at position i, or -1 if that position is invalid.*/
 	public int getCounter(int i) 
-	//@ requires CCSeqInv(this);
-	//@ ensures CCSeqInv(this);
+	//@ requires [?f]CCSeqInv(this);
+	//@ ensures [f]CCSeqInv(this);
 	{	
 		int ret = 0;
 		
-		//@ open CCSeqInv(this);
+		//@ open [f]CCSeqInv(this);
 		mon.lock();
 
 		//@ open CCSeqSharedState(this)();
@@ -57,7 +57,7 @@ public class CCSeq {
 		//@ close CCSeqSharedState(this)();
 
 		mon.unlock();
-		//@ close CCSeqInv(this);
+		//@ close [f]CCSeqInv(this);
 		
 		return ret;
 	}
