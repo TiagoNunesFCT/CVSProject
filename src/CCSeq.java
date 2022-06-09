@@ -3,8 +3,8 @@ import java.util.concurrent.locks.*;
 
 /*@
 predicate_ctor CCSeqSharedState(CCSeq c) () = c.seq |-> ?s &*& s != null &*& CounterSeqInv(s,?cap, ?l) &*& l >= 0 &*& cap > 0 &*& l <= cap;
-predicate_ctor CCSeqNotEmpty(CCSeq c) () = c.seq |-> ?s &*& CounterSeqInv(s,?cap, ?l) &*& l > 0 &*& cap > 0 &*& l <= cap;
-predicate_ctor CCSeqNotFull(CCSeq c) () = c.seq |-> ?s &*& CounterSeqInv(s,?cap, ?l) &*& l < cap &*& cap > 0 &*& l >= 0;
+predicate_ctor CCSeqNotEmpty(CCSeq c) () = c.seq |-> ?s &*& s != null &*& CounterSeqInv(s,?cap, ?l) &*& l > 0 &*& cap > 0 &*& l <= cap;
+predicate_ctor CCSeqNotFull(CCSeq c) () = c.seq |-> ?s &*& s != null &*& CounterSeqInv(s,?cap, ?l) &*& l < cap &*& cap > 0 &*& l >= 0;
 predicate CCSeqInv(CCSeq c) = c.mon |-> ?l &*& l != null &*& lck(l,1, CCSeqSharedState(c)) 
 	&*& c.notEmpty |-> ?ce &*& ce != null &*& cond(ce, CCSeqSharedState(c), CCSeqNotEmpty(c)) 
 	&*& c.notFull |-> ?cf &*& cf != null &*& cond(cf, CCSeqSharedState(c), CCSeqNotFull(c));
@@ -67,10 +67,10 @@ public class CCSeq {
 	except the index i may not necessarily be a valid index in the sequence. 
 	If i is not a valid index, the operations will return without modifying any counter in the sequence.*/
 	public void incr(int i, int val) 
-	//@ requires CCSeqInv(this);
-	//@ ensures CCSeqInv(this);
+	//@ requires [?f]CCSeqInv(this);
+	//@ ensures [f]CCSeqInv(this);
 	{
-		//@ open CCSeqInv(this);
+		//@ open [f]CCSeqInv(this);
 		mon.lock();
 
 		//@ open CCSeqSharedState(this)();
@@ -80,14 +80,14 @@ public class CCSeq {
 		//@ close CCSeqSharedState(this)();
 
 		mon.unlock();
-		//@ close CCSeqInv(this);
+		//@ close [f]CCSeqInv(this);
 	}
 	
 	public void decr(int i, int val) 
-	//@ requires CCSeqInv(this);
-	//@ ensures CCSeqInv(this);
+	//@ requires [?f]CCSeqInv(this);
+	//@ ensures [f]CCSeqInv(this);
 	{
-		//@ open CCSeqInv(this);
+		//@ open [f]CCSeqInv(this);
 		mon.lock();
 		//@ open CCSeqSharedState(this)();
 		if(i < seq.length() && i >= 0 && val > 0) {
@@ -96,32 +96,31 @@ public class CCSeq {
 		//@ close CCSeqSharedState(this)();
 
 		mon.unlock();
-		//@ close CCSeqInv(this);
+		//@ close [f]CCSeqInv(this);
 	}
-	
-	
+
 	/*The addCounter operation will append a new counter (with the given limit) to the sequence,
 	returning the index of the new counter. The insertion only takes place on a non-full sequence. (using concurrency mechanisms)*/
 	public int addCounter(int limit) 
-	//@ requires CCSeqInv(this);
-	//@ ensures CCSeqInv(this);
+	//@ requires [?f]CCSeqInv(this);
+	//@ ensures [f]CCSeqInv(this);
 	{	
 		int index = -1;
 
-		//@ open CCSeqInv(this);
+		//@ open [f]CCSeqInv(this);
 		mon.lock();
 
 		// Condition Used - notFull
 		//@ open CCSeqSharedState(this)();
-		while (seq.length() <= seq.capacity()) 
+		while (seq.length() >= seq.capacity()) 
 			/*@ invariant this.seq |-> ?s &*& s != null &*& CounterSeqInv(s, ?cap, ?l)
 			&*& l >= 0 &*& cap > 0 &*& l <= cap
-			&*& this.notEmpty |-> ?ce 
+			&*& [f]this.notEmpty |-> ?ce 
 			&*& ce !=null
-			&*& cond(ce, CCSeqSharedState(this), CCSeqNotEmpty(this))
-			&*& this.notFull |-> ?cf
+			&*& [f]cond(ce, CCSeqSharedState(this), CCSeqNotEmpty(this))
+			&*& [f]this.notFull |-> ?cf
 			&*& cf !=null 
-			&*& cond(cf, CCSeqSharedState(this), CCSeqNotFull(this));
+			&*& [f]cond(cf, CCSeqSharedState(this), CCSeqNotFull(this));
 			@*/
 			
 		{
@@ -129,38 +128,60 @@ public class CCSeq {
 			try { notFull.await(); } catch (InterruptedException e) {}
 			//@ open CCSeqNotFull(this)();
 		}
-		index = seq.addCounter(limit);
-		//@ close CCSeqNotEmpty(this)();
-		notEmpty.signal();
+
+		if(limit > 0) {
+			index = seq.addCounter(limit);
+			//@ close CCSeqNotEmpty(this)();
+			notEmpty.signal();
+			//@open CCSeqSharedState(this)();
+		}
+		//@close CCSeqSharedState(this)();
 		
 		mon.unlock();
-		//@ close CCSeqInv(this);
+		//@ close [f]CCSeqInv(this);
 		return index;
 	}
-	
+
 	/*The remCounter operation will remove the
 	counter at the given index, or have no effect if the index does not contain a counter.
 	The removal only takes place on a non-empty sequence. (using concurrency mechanisms)*/
 	public void remCounter(int i)
-	//@ requires CCSeqInv(this);
-	//@ ensures CCSeqInv(this);
+	//@ requires [?f]CCSeqInv(this);
+	//@ ensures [f]CCSeqInv(this);
 	{
+		//@ open [f]CCSeqInv(this);
 		mon.lock();
-		//@ open CCSeq_shared_state(this)();
+
+		//@ open CCSeqSharedState(this)();
 		//Condition notEmpty
 		while (0 >= seq.length()) 
-
+			/*@ invariant this.seq |-> ?s &*& s != null &*& CounterSeqInv(s, ?cap, ?l)
+			&*& l >= 0 &*& cap > 0 &*& l <= cap
+			&*& [f]this.notEmpty |-> ?ce 
+			&*& ce !=null
+			&*& [f]cond(ce, CCSeqSharedState(this), CCSeqNotEmpty(this))
+			&*& [f]this.notFull |-> ?cf
+			&*& cf !=null 
+			&*& [f]cond(cf, CCSeqSharedState(this), CCSeqNotFull(this));
+			@*/
 		{ 
-			//@close CCSeq_shared_state(this)();
+			//@close CCSeqSharedState(this)();
 			try { notEmpty.await(); } catch (InterruptedException e) {}
-			//@ open CCSeq_notEmpty(this)();
+			//@ open CCSeqNotEmpty(this)();
 		}
-		seq.remCounter(i);
-		//@ close CCSeq_notFull(this)();
-		notFull.signal();
-		//@ assert CCSeq_shared_state(this)();
+
+		if(i < seq.length() && i >= 0 && seq.capacity() >= seq.length()) {
+			seq.remCounter(i);
+			//@ close CCSeqNotFull(this)();
+			notFull.signal();
+			//@open CCSeqSharedState(this)();
+		}
+		//@close CCSeqSharedState(this)();
+		
 		mon.unlock();
+		//@ close [f]CCSeqInv(this);
 	}
+	
 	
 	/* invariant this.N |-> ?v &*& v >= 0
 	&*& this.MAX |-> ?m

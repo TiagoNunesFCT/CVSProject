@@ -103,7 +103,7 @@ public class CounterSequence {
 	/*The remCounter operation is not order preserving,
 	moving the last element of the sequence to the position of the removed counter.*/
 	public void remCounter(int pos) 
-	//@requires CounterSeqInv(this,?a, ?l) &*& a > l &*& l > 0 &*& l > pos &*& pos >= 0;
+	//@requires CounterSeqInv(this,?a, ?l) &*& a >= l &*& l > 0 &*& l > pos &*& pos >= 0;
 	//@ensures CounterSeqInv(this,a, l-1);
 	{
 			if(pos < size-1) {
@@ -122,7 +122,7 @@ public class CounterSequence {
 	//@requires CounterSeqInv(this,?a, ?l) &*& a > l &*& l > 0 &*& l > pos &*& pos >= 0;
 	//@ensures CounterSeqInv(this,a, l-1);
 	{
-			//@open CounterSeqInv(a, l);
+			//@open CounterSeqInv(this, a, l);
 			if(pos < size-1) {
 			
 			for(int i = pos; i < size-1; i++) 
@@ -140,7 +140,7 @@ public class CounterSequence {
 				seq[pos] = null;
 			}
 			size--;
-			//@close CounterSeqInv(a, l-1);
+			//@close CounterSeqInv(this, a, l-1);
 	}
 	
 	
